@@ -47,11 +47,7 @@
     return data;
   };
 
-  var pictureTemplate = document.querySelector('#picture')
-    .content
-    .querySelector('.picture');
-
-  var renderPicture = function (picture) {
+  var renderPicture = function (picture, pictureTemplate) {
     var pictureElement = pictureTemplate.cloneNode(true);
 
     pictureElement.querySelector('.picture__img').src = picture.url;
@@ -64,9 +60,12 @@
   var generateDOM = function (pictures) {
 
     var fragment = document.createDocumentFragment();
+    var pictureTemplate = document.querySelector('#picture')
+      .content
+      .querySelector('.picture');
 
     pictures.forEach(function (picture) {
-      fragment.appendChild(renderPicture(picture));
+      fragment.appendChild(renderPicture(picture, pictureTemplate));
     });
 
     document.querySelector('.pictures').appendChild(fragment);
