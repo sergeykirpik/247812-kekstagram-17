@@ -10,6 +10,15 @@
     }
   };
 
+  effects.setValue = function (newValue) {
+    effects.querySelectorAll('.effects__radio').forEach(function (r) {
+      r.checked = r.value === newValue;
+    });
+    if (effects.onValueChanged !== null) {
+      effects.onValueChanged(newValue);
+    }
+  };
+
   effects.querySelectorAll('.effects__radio').forEach(function (r) {
     r.addEventListener('change', effects.changeHandler);
   });
