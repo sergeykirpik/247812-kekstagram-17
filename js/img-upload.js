@@ -54,7 +54,9 @@
     heat: function (level) {
       return 'brightness(' + level * 0.03 + ')';
     },
-    none: '',
+    none: function () {
+      return '';
+    },
   };
   preview.setEffectLevel = function (lvl) {
     preview.style.filter = preview.effectFunctions[preview.currentEffect](lvl);
