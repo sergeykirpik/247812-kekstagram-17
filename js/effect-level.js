@@ -5,57 +5,89 @@
   var KEY_RIGHT_ARROW = 39;
   var KEY_LEFT_ARROW = 37;
 
-  var initComponent = function (effectLevel) {
-    effectLevel.onValueChanged = null;
-    effectLevel.value = effectLevel.querySelector('.effect-level__value');
-    effectLevel.line = effectLevel.querySelector('.effect-level__line');
-    effectLevel.pin = effectLevel.line.querySelector('.effect-level__pin');
-    effectLevel.depth = effectLevel.line.querySelector('.effect-level__depth');
-    effectLevel.setValue = function (val) {
-      val = Math.min(Math.max(val, 0), 100);
-      effectLevel.value.value = val;
-      effectLevel.pin.style.left = val + '%';
-      effectLevel.depth.style.width = val + '%';
+  var DEFAULT_MIN = 0;
+  var DEFAULT_MAX = 100;
 
-      if (effectLevel.onValueChanged !== null) {
-        effectLevel.onValueChanged(val);
-      }
+  var createModel = function () {
+
+    return {
+
+      setValue: function (val) {
+        val = Math.min(Math.max(val, this.min), this.max);
+        this.value.value = val;
+        this.pin.style.left = val + '%';
+        this.depth.style.width = val + '%';
+
+        if (this.onValueChanged !== null) {
+          this.onValueChanged(val);
+        }
+      },
+
+      getValue: function () {
+        return +this.value.value;
+      },
+
+      calcValue: function calcValue(mouseX) {
+        var rect = this.line.getBoundingClientRect();
+        return Math.round((mouseX - rect.left) / rect.width * 100);
+      },
     };
-    effectLevel.getValue = function () {
-      return +effectLevel.value.value;
-    };
-    effectLevel.calcValue = function (mouseX) {
-      var rect = effectLevel.line.getBoundingClientRect();
-      return Math.round((mouseX - rect.left) / rect.width * 100);
-    };
-    effectLevel.addEventListener('click', function (evt) {
-      effectLevel.setValue(effectLevel.calcValue(evt.clientX));
+  };
+
+  var initEffectLevelPin = function (elem, model) {
+    elem.addEventListener('mousedown', function () {
+      document.addEventListener('mousemove', model.documentMouseMoveHandler);
+      document.addEventListener('mouseup', model.documentMouseUpHandler);
     });
-    effectLevel.pin.addEventListener('mousedown', function () {
-      document.addEventListener('mousemove', effectLevel.documentMouseMoveHandler);
-      document.addEventListener('mouseup', effectLevel.documentMouseUpHandler);
-    });
-    effectLevel.documentMouseMoveHandler = function (evt) {
-      effectLevel.setValue(effectLevel.calcValue(evt.clientX));
-      evt.preventDefault();
-    };
-    effectLevel.documentMouseUpHandler = function () {
-      document.removeEventListener('mouseup', effectLevel.documentMouseUpHandler);
-      document.removeEventListener('mousemove', effectLevel.documentMouseMoveHandler);
-    };
-    effectLevel.pin.addEventListener('keydown', function (evt) {
+
+    elem.addEventListener('keydown', function (evt) {
       if (evt.keyCode === KEY_RIGHT_ARROW) {
-        effectLevel.setValue(effectLevel.getValue() + 1);
+        model.setValue(model.getValue() + 1);
 
       } else if (evt.keyCode === KEY_LEFT_ARROW) {
-        effectLevel.setValue(effectLevel.getValue() - 1);
+        model.setValue(model.getValue() - 1);
 
       }
     });
   };
 
+  var initEffectLevel = function (elem) {
+
+    elem.model = createModel();
+
+    elem.model.documentMouseMoveHandler = function (model) {
+      return function (evt) {
+        model.setValue(model.calcValue(evt.clientX));
+        evt.preventDefault();
+      };
+    }(elem.model);
+
+    elem.model.documentMouseUpHandler = function (model) {
+      return function () {
+        document.removeEventListener('mouseup', model.documentMouseUpHandler);
+        document.removeEventListener('mousemove', model.documentMouseMoveHandler);
+      };
+    }(elem.model);
+
+    elem.model.onValueChanged = null;
+    elem.model.min = DEFAULT_MIN;
+    elem.model.max = DEFAULT_MAX;
+
+    elem.model.value = elem.querySelector('.effect-level__value');
+    elem.model.line = elem.querySelector('.effect-level__line');
+    elem.model.pin = elem.model.line.querySelector('.effect-level__pin');
+    elem.model.depth = elem.model.line.querySelector('.effect-level__depth');
+
+    initEffectLevelPin(elem.model.pin, elem.model);
+
+    elem.addEventListener('click', function (evt) {
+      var model = evt.currentTarget.model;
+      model.setValue(model.calcValue(evt.clientX));
+    });
+  };
+
   document.querySelectorAll('.effect-level').forEach(function (el) {
-    initComponent(el);
+    initEffectLevel(el);
   });
 
 })();

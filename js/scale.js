@@ -3,41 +3,65 @@
 (function () {
   var KEY_ENTER = 13;
 
-  var scale = document.querySelector('.scale');
-  scale.onValueChanged = null;
-  scale.smallerControl = scale.querySelector('.scale__control--smaller');
-  scale.valueControl = scale.querySelector('.scale__control--value');
-  scale.biggerControl = scale.querySelector('.scale__control--bigger');
-  scale.currentValue = 0;
-  scale.step = 25;
-  scale.setValue = function (val) {
-    scale.currentValue = Math.min(Math.max(val, 25), 100);
-    scale.valueControl.value = scale.currentValue + '%';
-    if (scale.onValueChanged !== null) {
-      scale.onValueChanged(scale.currentValue);
-    }
+  var DEFAULT_MIN = 25;
+  var DEFAULT_MAX = 100;
+  var DEFAULT_STEP = 25;
+
+  var createModel = function () {
+    return {
+      setValue: function (val) {
+        this.currentValue = Math.min(Math.max(val, this.min), this.max);
+        this.valueControl.value = this.currentValue + '%';
+        if (this.onValueChanged !== null) {
+          this.onValueChanged(this.currentValue);
+        }
+      },
+      inc: function () {
+        this.setValue(this.currentValue + this.step);
+      },
+      dec: function () {
+        this.setValue(this.currentValue - this.step);
+      },
+    };
   };
-  scale.inc = function () {
-    scale.setValue(scale.currentValue + scale.step);
+
+  var initSmallerControl = function (elem, model) {
+    elem.addEventListener('click', function () {
+      model.dec();
+    });
+    elem.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === KEY_ENTER) {
+        model.dec();
+      }
+    });
   };
-  scale.dec = function () {
-    scale.setValue(scale.currentValue - scale.step);
+
+  var initBiggerControl = function (elem, model) {
+    elem.addEventListener('click', function () {
+      model.inc();
+    });
+    elem.addEventListener('keydown', function (evt) {
+      if (evt.keyCode === KEY_ENTER) {
+        model.inc();
+      }
+    });
   };
-  scale.smallerControl.addEventListener('click', function () {
-    scale.dec();
-  });
-  scale.smallerControl.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === KEY_ENTER) {
-      scale.dec();
-    }
-  });
-  scale.biggerControl.addEventListener('click', function () {
-    scale.inc();
-  });
-  scale.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === KEY_ENTER) {
-      scale.inc();
-    }
-  });
+
+  var initScale = function (elem) {
+    elem.model = createModel();
+    elem.model.min = DEFAULT_MIN;
+    elem.model.max = DEFAULT_MAX;
+    elem.model.onValueChanged = null;
+    elem.model.smallerControl = elem.querySelector('.scale__control--smaller');
+    elem.model.valueControl = elem.querySelector('.scale__control--value');
+    elem.model.biggerControl = elem.querySelector('.scale__control--bigger');
+    elem.model.currentValue = 0;
+    elem.model.step = DEFAULT_STEP;
+
+    initSmallerControl(elem.model.smallerControl, elem.model);
+    initBiggerControl(elem.model.biggerControl, elem.model);
+  };
+
+  initScale(document.querySelector('.scale'));
 
 })();
