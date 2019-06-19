@@ -38,29 +38,26 @@
   });
 
   var preview = overlay.querySelector('.img-upload__preview');
-  preview.setEffectLevel = function (level) {
-    switch (preview.currentEffect) {
-      case 'chrome':
-        preview.style.filter = 'grayscale(' + level * 0.01 + ')';
-        break;
-      case 'sepia':
-        preview.style.filter = 'sepia(' + level * 0.01 + ')';
-        break;
-      case 'marvin':
-        preview.style.filter = 'invert(' + level + '%)';
-        break;
-      case 'phobos':
-        preview.style.filter = 'blur(' + Math.round(level * 0.03) + 'px';
-        break;
-      case 'heat':
-        preview.style.filter = 'brightness(' + level * 0.03 + ')';
-        break;
-      case 'none':
-        preview.style.filter = '';
-        break;
-      default:
-        throw Error('Unknown effect: ' + preview.currentEffect);
-    }
+  preview.effectFunctions = {
+    chrome: function (level) {
+      return 'grayscale(' + level * 0.01 + ')';
+    },
+    sepia: function (level) {
+      return 'sepia(' + level * 0.01 + ')';
+    },
+    marvin: function (level) {
+      return 'invert(' + level + '%)';
+    },
+    phobos: function (level) {
+      return 'blur(' + Math.round(level * 0.03) + 'px';
+    },
+    heat: function (level) {
+      return 'brightness(' + level * 0.03 + ')';
+    },
+    none: '',
+  };
+  preview.setEffectLevel = function (lvl) {
+    preview.style.filter = preview.effectFunctions[preview.currentEffect](lvl);
   };
 
   preview.setEffect = function (effect) {
