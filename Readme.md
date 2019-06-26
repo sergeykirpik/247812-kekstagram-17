@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url]
 
 * Студент: [Sergey Kirpik](https://up.htmlacademy.ru/javascript/17/user/247812).
-* Наставник: [Петр Волобуев](https://htmlacademy.ru/profile/id635515).
+* Наставник: [Александр Ожигин](https://htmlacademy.ru/profile/id157835).
 
 ---
 
