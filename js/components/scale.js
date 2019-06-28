@@ -1,7 +1,8 @@
 'use strict';
 
 (function () {
-  var KEY_ENTER = 13;
+
+  var KeyEvents = window.KeyEvents;
 
   var DEFAULT_MIN = 25;
   var DEFAULT_MAX = 100;
@@ -24,11 +25,7 @@
       smallerControl.addEventListener('click', function () {
         that.dec();
       });
-      smallerControl.addEventListener('keydown', function (evt) {
-        if (evt.keyCode === KEY_ENTER) {
-          that.dec();
-        }
-      });
+      KeyEvents.addEnterKeyListener(smallerControl, that.dec.bind(that));
       return smallerControl;
     }
 
@@ -37,11 +34,7 @@
       biggerControl.addEventListener('click', function () {
         that.inc();
       });
-      biggerControl.addEventListener('keydown', function (evt) {
-        if (evt.keyCode === KEY_ENTER) {
-          that.inc();
-        }
-      });
+      KeyEvents.addEnterKeyListener(biggerControl, that.inc.bind(that));
       return biggerControl;
     }
   }

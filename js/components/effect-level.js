@@ -2,8 +2,7 @@
 
 (function () {
 
-  var KEY_RIGHT_ARROW = 39;
-  var KEY_LEFT_ARROW = 37;
+  var KeyEvents = window.KeyEvents;
 
   var DEFAULT_MIN = 0;
   var DEFAULT_MAX = 100;
@@ -41,10 +40,10 @@
       });
 
       pin.addEventListener('keydown', function (evt) {
-        if (evt.keyCode === KEY_RIGHT_ARROW) {
+        if (evt.keyCode === KeyEvents.KEY_RIGHT_ARROW) {
           effectLevel.setValue(effectLevel.getValue() + 1);
 
-        } else if (evt.keyCode === KEY_LEFT_ARROW) {
+        } else if (evt.keyCode === KeyEvents.KEY_LEFT_ARROW) {
           effectLevel.setValue(effectLevel.getValue() - 1);
 
         }

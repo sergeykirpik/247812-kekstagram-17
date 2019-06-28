@@ -2,8 +2,7 @@
 
 (function () {
 
-  var KEY_ENTER = 13;
-  var KEY_ESC = 27;
+  var KeyEvents = window.KeyEvents;
 
   var EffectLevel = window.components.EffectLevel;
   var EffectsRadioControl = window.components.EffectsRadioControl;
@@ -35,7 +34,7 @@
     };
 
     this.closeDialogEscKeyHandler = function (evt) {
-      if (evt.keyCode === KEY_ESC) {
+      if (evt.keyCode === KeyEvents.KEY_ESC) {
         that.close();
       }
     };
@@ -45,24 +44,18 @@
       btn.addEventListener('click', function () {
         dialog.close();
       });
-      btn.addEventListener('keydown', function (evt) {
-        if (evt.keyCode === KEY_ENTER) {
-          dialog.close();
-        }
-      });
+      KeyEvents.addEnterKeyListener(btn, dialog.close.bind(dialog));
     }
 
     function initForm(dialog) {
       var form = dialog.el.querySelector('form');
-      form.addEventListener('keydown', function (evt) {
-        if (evt.keyCode === KEY_ENTER) {
-          evt.preventDefault();
-        }
+
+      KeyEvents.addEnterKeyListener(form, function (evt) {
+        evt.preventDefault();
       });
-      form.description.addEventListener('keydown', function (evt) {
-        if (evt.keyCode === KEY_ESC) {
-          evt.stopPropagation();
-        }
+
+      KeyEvents.addEscKeyListener(form.description, function (evt) {
+        evt.stopPropagation();
       });
     }
 
