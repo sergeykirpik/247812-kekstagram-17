@@ -25,8 +25,9 @@
     document.querySelector('.pictures').appendChild(fragment);
   };
 
-  generateDOM(window.data.getData());
-
+  window.backend.getPhotos(function (photos) {
+    generateDOM(photos);
+  });
 
   var uploadDialog = new window.dialogs.UploadDialog();
   var uploadFile = document.querySelector('#upload-file');
