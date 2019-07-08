@@ -12,6 +12,7 @@
     xhr.open(method, url);
     this.onSuccess = noop;
     this.onError = noop;
+    this.onTimeout = null;
 
     xhr.addEventListener('load', function () {
       if (xhr.status === 200) {
@@ -32,7 +33,11 @@
     });
 
     xhr.addEventListener('timeout', function () {
-      loader.onError('Таймаут соединения');
+      if (loader.onTimeout) {
+        loader.onTimeout();
+      } else {
+        loader.onError('Таймаут соединения');
+      }
     });
     this.xhr = xhr;
   }
