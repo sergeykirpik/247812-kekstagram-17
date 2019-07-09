@@ -2,6 +2,31 @@
 
 (function () {
 
+  var KeyEvents = window.KeyEvents;
+
+  var EventType = {
+    CLICK: 'click',
+    KEYDOWN: 'keydown'
+  };
+
+  var eventListeners = [];
+
+  var addEventListener = function (el, type, handler) {
+    eventListeners.push({
+      el: el,
+      type: type,
+      handler: handler
+    });
+    el.addEventListener(type, handler);
+  };
+
+  var removeAllEventListeners = function () {
+    eventListeners.forEach(function (it) {
+      it.el.removeEventListener(it.type, it.handler);
+    });
+    eventListeners = [];
+  };
+
   var randomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
   };
@@ -30,6 +55,7 @@
       .content
       .querySelector('.social__comment');
 
+    this.cancelBtn = this.el.querySelector('.big-picture__cancel');
   };
 
   BigPictureDialog.prototype.show = function (picture) {
@@ -40,6 +66,13 @@
     this.el.classList.remove('hidden');
     this.el.querySelector('.social__comment-count').classList.add('visually-hidden');
     this.el.querySelector('.comments-loader').classList.add('visually-hidden');
+
+    this._addEventListeners();
+  };
+
+  BigPictureDialog.prototype.hide = function () {
+    this.el.classList.add('hidden');
+    this._removeAllEventListeners();
   };
 
   BigPictureDialog.prototype.setPicture = function (picture) {
@@ -59,6 +92,26 @@
     });
     this.socialCommentsBlock.appendChild(fragment);
 
+  };
+
+  BigPictureDialog.prototype._addEventListeners = function () {
+    var self = this;
+
+    addEventListener(this.cancelBtn, EventType.CLICK, this.hide.bind(this));
+    addEventListener(document, EventType.KEYDOWN, function (evt) {
+      if (KeyEvents.isEsc(evt)) {
+        self.hide();
+      }
+    });
+  };
+
+  BigPictureDialog.prototype._removeAllEventListeners = function () {
+    removeAllEventListeners();
+  };
+
+  BigPictureDialog._instance = new BigPictureDialog();
+  BigPictureDialog.show = function (picture) {
+    this._instance.show(picture);
   };
 
   if (!window.dialogs) {
