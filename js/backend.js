@@ -2,6 +2,7 @@
 
 (function () {
   var GET_LOADED_PHOTOS_URL = 'https://js.dump.academy/kekstagram/data';
+  var POST_NEW_PHOTO_URL = 'https://js.dump.academy/kekstagram';
 
   function noop() {}
 
@@ -14,6 +15,12 @@
         onSuccess(window.mockdata);
       };
       loader.send();
+    },
+    postNewPhoto: function (form, onSuccess, onError) {
+      var loader = new window.xhr.Loader('POST', POST_NEW_PHOTO_URL);
+      loader.onSuccess = onSuccess || noop;
+      loader.onError = onError || noop;
+      loader.send(new FormData(form));
     }
   };
 })();
