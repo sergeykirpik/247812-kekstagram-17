@@ -73,14 +73,18 @@
       .querySelector('.picture');
 
     pictures.forEach(function (picture) {
-      fragment.appendChild(renderPicture(picture, pictureTemplate));
+      var pictureEl = renderPicture(picture, pictureTemplate);
+      pictureEl.addEventListener('click', function (evt) {
+        evt.preventDefault();
+        window.dialogs.BigPictureDialog.show(picture);
+      });
+      fragment.appendChild(pictureEl);
     });
 
-    var picturesEl = document.querySelector('.pictures');
-    removeAllPictures(picturesEl);
-    picturesEl.appendChild(fragment);
+    var picturesBlock = document.querySelector('.pictures');
+    removeAllPictures(picturesBlock);
+    picturesBlock.appendChild(fragment);
   };
-
 
   var imgFilters = new ImgFilters(document.querySelector('.img-filters'));
   imgFilters.onButtonClicked = window.debounce(function (id) {
@@ -92,9 +96,6 @@
     loadedPhotos = photos;
     generateDOM(loadedPhotos);
     imgFilters.el.classList.remove('img-filters--inactive');
-
-    var bigPictureDialog = new window.dialogs.BigPictureDialog();
-    bigPictureDialog.show(loadedPhotos[0]);
   });
 
   var uploadDialog = new window.dialogs.UploadDialog();
