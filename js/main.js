@@ -92,6 +92,9 @@
     loadedPhotos = photos;
     generateDOM(loadedPhotos);
     imgFilters.el.classList.remove('img-filters--inactive');
+
+    var bigPictureDialog = new window.dialogs.BigPictureDialog();
+    bigPictureDialog.show(loadedPhotos[0]);
   });
 
   var uploadDialog = new window.dialogs.UploadDialog();
