@@ -155,6 +155,11 @@
     window.backend.postNewPhoto(this.form,
         function () {
           self.close();
+          window.msg.success();
+        },
+        function () {
+          self.close();
+          window.msg.error();
         }
     );
   };
