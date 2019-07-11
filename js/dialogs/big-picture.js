@@ -4,34 +4,11 @@
 
   var KeyEvents = window.KeyEvents;
 
-  var EventType = {
-    CLICK: 'click',
-    KEYDOWN: 'keydown'
-  };
-
-  var eventListeners = [];
-
-  var addEventListener = function (el, type, handler) {
-    eventListeners.push({
-      el: el,
-      type: type,
-      handler: handler
-    });
-    el.addEventListener(type, handler);
-  };
-
-  var removeAllEventListeners = function () {
-    eventListeners.forEach(function (it) {
-      it.el.removeEventListener(it.type, it.handler);
-    });
-    eventListeners = [];
-  };
+  var COMMENTS_LIMIT = 5;
 
   var randomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
   };
-
-  window.randomInt = randomInt;
 
   var renderComment = function (comment, commentTemplate) {
     var el = commentTemplate.cloneNode(true);
@@ -44,6 +21,7 @@
   };
 
   var BigPictureDialog = function () {
+    this.eventDispatcher = new window.EventDispatcher();
     this.el = document.querySelector('.big-picture');
 
     this.caption = this.el.querySelector('.social__caption');
@@ -56,6 +34,17 @@
       .querySelector('.social__comment');
 
     this.cancelBtn = this.el.querySelector('.big-picture__cancel');
+    this.commentsLoader = this.el.querySelector('.comments-loader');
+
+  };
+
+  BigPictureDialog.prototype._setCommentsLoaderVisibility = function (visible) {
+
+    if (visible) {
+      this.commentsLoader.classList.remove('visually-hidden');
+    } else {
+      this.commentsLoader.classList.add('visually-hidden');
+    }
   };
 
   BigPictureDialog.prototype.show = function (picture) {
@@ -64,49 +53,60 @@
     }
 
     this.el.classList.remove('hidden');
-    this.el.querySelector('.social__comment-count').classList.add('visually-hidden');
-    this.el.querySelector('.comments-loader').classList.add('visually-hidden');
-
     this._addEventListeners();
   };
 
   BigPictureDialog.prototype.hide = function () {
     this.el.classList.add('hidden');
-    this._removeAllEventListeners();
+    this.eventDispatcher.removeAllEventListeners();
   };
 
   BigPictureDialog.prototype.setPicture = function (picture) {
+    this.picture = picture;
     this.caption.textContent = picture.description;
     this.img.src = picture.url;
     this.likesCount.textContent = picture.likes;
     this.commentsCount.textContent = picture.comments.length;
 
-    var fragment = document.createDocumentFragment();
-    var commentTemplate = this.commentTemplate;
-    picture.comments.forEach(function (it) {
-      fragment.appendChild(renderComment(it, commentTemplate));
-    });
-
     Array.from(this.socialCommentsBlock.children).forEach(function (it) {
       it.remove();
     });
-    this.socialCommentsBlock.appendChild(fragment);
 
+    this.commentsLoaded = 0;
+    this._loadMoreComments();
+
+  };
+
+  BigPictureDialog.prototype._renderComments = function () {
+    var fragment = document.createDocumentFragment();
+    var start = this.commentsLoaded;
+    var end = this.commentsLoaded + COMMENTS_LIMIT;
+    var comments = this.picture.comments;
+    for (var i = start; i < Math.min(comments.length, end); i++) {
+      fragment.appendChild(renderComment(comments[i], this.commentTemplate));
+    }
+
+    this.socialCommentsBlock.appendChild(fragment);
   };
 
   BigPictureDialog.prototype._addEventListeners = function () {
-    var self = this;
-
-    addEventListener(this.cancelBtn, EventType.CLICK, this.hide.bind(this));
-    addEventListener(document, EventType.KEYDOWN, function (evt) {
-      if (KeyEvents.isEsc(evt)) {
-        self.hide();
-      }
-    });
+    this.eventDispatcher.addClickEventListener(
+        this.cancelBtn, this.hide.bind(this)
+    );
+    this.eventDispatcher.addKeyEventListener(
+        document, KeyEvents.KEY_ESC, this.hide.bind(this)
+    );
+    this.eventDispatcher.addClickEventListener(
+        this.commentsLoader, this._loadMoreComments.bind(this)
+    );
   };
 
-  BigPictureDialog.prototype._removeAllEventListeners = function () {
-    removeAllEventListeners();
+  BigPictureDialog.prototype._loadMoreComments = function () {
+    this._renderComments();
+    this.commentsLoaded += COMMENTS_LIMIT;
+    this._setCommentsLoaderVisibility(
+        this.commentsLoaded < this.picture.comments.length
+    );
   };
 
   BigPictureDialog._instance = new BigPictureDialog();
