@@ -24,7 +24,7 @@
 
   Message.prototype.close = function () {
     this.el.remove();
-    this.eventDispatcher.removeAllListeners();
+    this.eventDispatcher.removeAllEventListeners();
   };
 
   var successTemplate = document.querySelector('#success')

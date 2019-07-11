@@ -27,7 +27,7 @@
     this.addEventListener(element, 'keydown', handler);
   };
 
-  EventDispatcher.prototype.removeAllListeners = function () {
+  EventDispatcher.prototype.removeAllEventListeners = function () {
     this.events.forEach(function (e) {
       e.element.removeEventListener(e.eventType, e.handler);
     });
