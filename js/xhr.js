@@ -13,6 +13,7 @@
     this.onSuccess = noop;
     this.onError = noop;
     this.onTimeout = null;
+    this.onConnectionError = null;
 
     xhr.addEventListener('load', function () {
       if (xhr.status === 200) {
@@ -29,7 +30,11 @@
     });
 
     xhr.addEventListener('error', function () {
-      loader.onError('Ошибка соединения');
+      if (loader.onConnectionError) {
+        loader.onConnectionError();
+      } else {
+        loader.onError('Ошибка соединения');
+      }
     });
 
     xhr.addEventListener('timeout', function () {

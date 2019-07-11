@@ -14,6 +14,9 @@
       loader.onTimeout = function () {
         onSuccess(window.mockdata);
       };
+      loader.onConnectionError = function () {
+        onSuccess(window.mockdata);
+      };
       loader.send();
     },
     postNewPhoto: function (form, onSuccess, onError) {

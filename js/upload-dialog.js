@@ -81,6 +81,7 @@
       var btn = dialog.el.querySelector('.cancel');
       btn.addEventListener('click', function (evt) {
         evt.preventDefault();
+        dialog.close();
       });
       KeyEvents.addEnterKeyListener(btn, dialog.close.bind(dialog));
     }
@@ -106,6 +107,10 @@
 
       KeyEvents.addEscKeyListener(form.hashtags, function (evt) {
         evt.stopPropagation();
+      });
+
+      form.addEventListener('submit', function (evt) {
+        evt.preventDefault();
       });
 
       return form;
@@ -150,6 +155,11 @@
     window.backend.postNewPhoto(this.form,
         function () {
           self.close();
+          window.msg.success();
+        },
+        function () {
+          self.close();
+          window.msg.error();
         }
     );
   };
