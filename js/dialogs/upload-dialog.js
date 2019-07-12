@@ -48,32 +48,31 @@
   };
 
   var UploadDialog = function () {
-    var that = this;
+    var self = this;
 
     this.el = document.querySelector('.img-upload');
 
     var effectLevel = new EffectLevel(this.el.querySelector('.effect-level'));
     var effectsRadio = new EffectsRadioControl(this.el.querySelector('.effects'));
     var scale = new ScaleControl(this.el.querySelector('.scale'));
-    var preview = new EffectsPreview(this.el.querySelector('.img-upload__preview'));
 
     effectLevel.onValueChanged = function (val) {
-      preview.setEffectLevel(val);
+      self.preview.setEffectLevel(val);
     };
 
     effectsRadio.onValueChanged = function (val) {
-      preview.setEffect(val);
+      self.preview.setEffect(val);
       effectLevel.setValue(effectLevel.max);
       effectLevel.setVisible(val !== 'none');
     };
 
     scale.onValueChanged = function (val) {
-      preview.setScale(val);
+      self.preview.setScale(val);
     };
 
     this.closeDialogEscKeyHandler = function (evt) {
       if (evt.keyCode === KeyEvents.KEY_ESC) {
-        that.close();
+        self.close();
       }
     };
 
@@ -124,10 +123,22 @@
     this.effectLevel = effectLevel;
     this.effectsRadio = effectsRadio;
     this.scale = scale;
+    this.preview = new EffectsPreview(this.el.querySelector('.img-upload__preview'));
+
   };
 
   UploadDialog.prototype.open = function () {
-    this.overlay.classList.remove('hidden');
+    var self = this;
+
+    var file = document.querySelector('#upload-file').files[0];
+    var fileReader = new FileReader();
+    var img = this.preview.preview.querySelector('img');
+    fileReader.addEventListener('load', function () {
+      img.src = fileReader.result;
+      self.overlay.classList.remove('hidden');
+    });
+    fileReader.readAsDataURL(file);
+
     document.addEventListener('keydown', this.closeDialogEscKeyHandler);
 
     this.effectLevel.setValue(100);
