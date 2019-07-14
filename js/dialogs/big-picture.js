@@ -2,7 +2,7 @@
 
 (function () {
 
-  var KeyEvents = window.KeyEvents;
+  var EventDispatcher = window.utils.EventDispatcher;
 
   var COMMENTS_LIMIT = 5;
 
@@ -21,7 +21,7 @@
   };
 
   var BigPictureDialog = function () {
-    this.eventDispatcher = new window.EventDispatcher();
+    this.eventDispatcher = new EventDispatcher();
     this.el = document.querySelector('.big-picture');
 
     this.caption = this.el.querySelector('.social__caption');
@@ -93,8 +93,8 @@
     this.eventDispatcher.addClickEventListener(
         this.cancelBtn, this.hide.bind(this)
     );
-    this.eventDispatcher.addKeyEventListener(
-        document, KeyEvents.KEY_ESC, this.hide.bind(this)
+    this.eventDispatcher.addEscKeyDownEventListener(
+        document, this.hide.bind(this)
     );
     this.eventDispatcher.addClickEventListener(
         this.commentsLoader, this._loadMoreComments.bind(this)

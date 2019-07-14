@@ -2,23 +2,25 @@
 
 (function () {
 
+  var EventDispatcher = window.utils.EventDispatcher;
+
   var Message = function (template) {
+    this.main = document.querySelector('main');
     this.el = template.cloneNode(true);
-    this.eventDispatcher = new window.EventDispatcher();
+    this.eventDispatcher = new EventDispatcher();
   };
 
   Message.prototype._initHandlers = function () {
-    var closeHandler = this.close.bind(this);
-    this.eventDispatcher.addKeyEventListener(
-        document, window.KeyEvents.KEY_ESC, closeHandler
+    this.eventDispatcher.addEscKeyDownEventListener(
+        document, this.close.bind(this)
     );
     this.eventDispatcher.addClickEventListener(
-        document, closeHandler
+        document, this.close.bind(this)
     );
   };
 
   Message.prototype.open = function () {
-    document.body.insertAdjacentElement('afterbegin', this.el);
+    this.main.insertAdjacentElement('afterbegin', this.el);
     this._initHandlers();
   };
 

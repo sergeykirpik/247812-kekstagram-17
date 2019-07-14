@@ -2,49 +2,50 @@
 
 (function () {
 
-  var KeyEvents = window.KeyEvents;
+  var EventDispatcher = window.utils.EventDispatcher;
 
   var DEFAULT_MIN = 25;
   var DEFAULT_MAX = 100;
   var DEFAULT_STEP = 25;
 
+  var noop = function () {};
+
   function ScaleControl(el) {
-    var that = this;
+
+    this.eventDispatcher = new EventDispatcher();
 
     this.min = DEFAULT_MIN;
     this.max = DEFAULT_MAX;
-    this.onValueChanged = null;
-    this.smallerControl = initSmallerControl();
+    this.onValueChanged = noop;
+    this.smallerControl = el.querySelector('.scale__control--smaller');
     this.valueControl = el.querySelector('.scale__control--value');
-    this.biggerControl = initBiggerControl();
+    this.biggerControl = el.querySelector('.scale__control--bigger');
     this.currentValue = DEFAULT_MAX;
     this.step = DEFAULT_STEP;
 
-    function initSmallerControl() {
-      var smallerControl = el.querySelector('.scale__control--smaller');
-      smallerControl.addEventListener('click', function () {
-        that.dec();
-      });
-      KeyEvents.addEnterKeyListener(smallerControl, that.dec.bind(that));
-      return smallerControl;
-    }
-
-    function initBiggerControl() {
-      var biggerControl = el.querySelector('.scale__control--bigger');
-      biggerControl.addEventListener('click', function () {
-        that.inc();
-      });
-      KeyEvents.addEnterKeyListener(biggerControl, that.inc.bind(that));
-      return biggerControl;
-    }
+    this._addEventListeners();
   }
+
+  ScaleControl.prototype._addEventListeners = function () {
+
+    this.eventDispatcher.addClickEventListener(
+        this.smallerControl, this.dec.bind(this)
+    );
+    this.eventDispatcher.addEnterKeyDownEventListener(
+        this.smallerControl, this.dec.bind(this)
+    );
+    this.eventDispatcher.addClickEventListener(
+        this.biggerControl, this.inc.bind(this)
+    );
+    this.eventDispatcher.addEnterKeyDownEventListener(
+        this.biggerControl, this.inc.bind(self)
+    );
+  };
 
   ScaleControl.prototype.setValue = function (val) {
     this.currentValue = Math.min(Math.max(val, this.min), this.max);
     this.valueControl.value = this.currentValue + '%';
-    if (this.onValueChanged !== null) {
-      this.onValueChanged(this.currentValue);
-    }
+    this.onValueChanged(this.currentValue);
   };
 
   ScaleControl.prototype.inc = function () {

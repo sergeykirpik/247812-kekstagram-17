@@ -2,71 +2,68 @@
 
 (function () {
 
-  var KeyEvents = window.KeyEvents;
-
   var DEFAULT_MIN = 0;
   var DEFAULT_MAX = 100;
 
-  function EffectLevel(el) {
-    var that = this;
+  var KeyCode = window.constants.KeyCode;
+  var EventType = window.constants.EventType;
 
-    this.onValueChanged = null;
+  var noop = function () {};
+
+  var EffectLevel = function (el) {
+
+    this.onValueChanged = noop;
     this.el = el;
     this.min = DEFAULT_MIN;
     this.max = DEFAULT_MAX;
 
     this.value = el.querySelector('.effect-level__value');
     this.line = el.querySelector('.effect-level__line');
-    this.pin = initEffectLevelPin(this);
+    this.pin = this.line.querySelector('.effect-level__pin');
     this.depth = this.line.querySelector('.effect-level__depth');
 
+    this._addEventListeners();
+  };
 
-    function documentMouseMoveHandler(evt) {
-      that.setValue(that.calcValue(evt.clientX));
-      evt.preventDefault();
-    }
+  EffectLevel.prototype._addEventListeners = function () {
+    var self = this;
 
-    function documentMouseUpHandler() {
-      document.removeEventListener('mouseup', documentMouseUpHandler);
-      document.removeEventListener('mousemove', documentMouseMoveHandler);
-    }
-
-    function initEffectLevelPin(effectLevel) {
-
-      var pin = effectLevel.line.querySelector('.effect-level__pin');
-      pin.addEventListener('mousedown', function () {
-        document.addEventListener('mousemove', documentMouseMoveHandler);
-        document.addEventListener('mouseup', documentMouseUpHandler);
-      });
-
-      pin.addEventListener('keydown', function (evt) {
-        if (evt.keyCode === KeyEvents.KEY_RIGHT_ARROW) {
-          effectLevel.setValue(effectLevel.getValue() + 1);
-
-        } else if (evt.keyCode === KeyEvents.KEY_LEFT_ARROW) {
-          effectLevel.setValue(effectLevel.getValue() - 1);
-
-        }
-      });
-
-      return pin;
-    }
-
-    this.el.addEventListener('click', function (evt) {
-      that.setValue(that.calcValue(evt.clientX));
+    this.el.addEventListener(EventType.CLICK, function (evt) {
+      self.setValue(self.calcValue(evt.clientX));
     });
 
-  }
+    var documentMouseMoveHandler = function (evt) {
+      self.setValue(self.calcValue(evt.clientX));
+      evt.preventDefault();
+    };
+
+    var documentMouseUpHandler = function () {
+      document.removeEventListener(EventType.MOUSE_UP, documentMouseUpHandler);
+      document.removeEventListener(EventType.MOUSE_MOVE, documentMouseMoveHandler);
+    };
+
+    this.pin.addEventListener(EventType.MOUSE_DOWN, function () {
+      document.addEventListener(EventType.MOUSE_MOVE, documentMouseMoveHandler);
+      document.addEventListener(EventType.MOUSE_UP, documentMouseUpHandler);
+    });
+
+    this.pin.addEventListener(EventType.KEY_DOWN, function (evt) {
+      if (evt.keyCode === KeyCode.RIGHT_ARROW) {
+        self.setValue(self.getValue() + 1);
+
+      } else if (evt.keyCode === KeyCode.LEFT_ARROW) {
+        self.setValue(self.getValue() - 1);
+
+      }
+    });
+  };
 
   EffectLevel.prototype.setValue = function (val) {
     val = Math.min(Math.max(val, this.min), this.max);
     this.value.value = val;
     this.pin.style.left = val + '%';
     this.depth.style.width = val + '%';
-
-    if (this.onValueChanged !== null) {
-      this.onValueChanged(val);
-    }
+    this.onValueChanged(val);
   };
 
   EffectLevel.prototype.getValue = function () {

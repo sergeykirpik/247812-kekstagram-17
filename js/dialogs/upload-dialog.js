@@ -2,7 +2,9 @@
 
 (function () {
 
-  var KeyEvents = window.KeyEvents;
+  var EventType = window.constants.EventType;
+
+  var EventDispatcher = window.utils.EventDispatcher;
 
   var EffectLevel = window.components.EffectLevel;
   var EffectsRadioControl = window.components.EffectsRadioControl;
@@ -47,8 +49,13 @@
     return '';
   };
 
+  var noop = function () {};
+
   var UploadDialog = function () {
-    var self = this;
+
+    var dialog = this;
+
+    this.eventDispatcher = new EventDispatcher();
 
     this.el = document.querySelector('.img-upload');
 
@@ -57,69 +64,24 @@
     var scale = new ScaleControl(this.el.querySelector('.scale'));
 
     effectLevel.onValueChanged = function (val) {
-      self.preview.setEffectLevel(val);
+      dialog.preview.setEffectLevel(val);
     };
 
     effectsRadio.onValueChanged = function (val) {
-      self.preview.setEffect(val);
+      dialog.preview.setEffect(val);
       effectLevel.setValue(effectLevel.max);
       effectLevel.setVisible(val !== 'none');
     };
 
     scale.onValueChanged = function (val) {
-      self.preview.setScale(val);
+      dialog.preview.setScale(val);
     };
 
-    this.closeDialogEscKeyHandler = function (evt) {
-      if (evt.keyCode === KeyEvents.KEY_ESC) {
-        self.close();
-      }
-    };
-
-    function initCloseBtn(dialog) {
-      var btn = dialog.el.querySelector('.cancel');
-      btn.addEventListener('click', function (evt) {
-        evt.preventDefault();
-        dialog.close();
-      });
-      KeyEvents.addEnterKeyListener(btn, dialog.close.bind(dialog));
-    }
-
-    function initSubmitBtn(dialog) {
-      var btn = dialog.el.querySelector('#upload-submit');
-      btn.addEventListener('click', function () {
-        dialog.submit();
-      });
-      KeyEvents.addEnterKeyListener(btn, dialog.submit.bind(dialog));
-    }
-
-    function initForm(dialog) {
-      var form = dialog.el.querySelector('form');
-
-      KeyEvents.addEnterKeyListener(form, function (evt) {
-        evt.preventDefault();
-      });
-
-      KeyEvents.addEscKeyListener(form.description, function (evt) {
-        evt.stopPropagation();
-      });
-
-      KeyEvents.addEscKeyListener(form.hashtags, function (evt) {
-        evt.stopPropagation();
-      });
-
-      form.addEventListener('submit', function (evt) {
-        evt.preventDefault();
-      });
-
-      return form;
-    }
-
-    this.onClose = null;
+    this.onClose = noop;
     this.overlay = this.el.querySelector('.img-upload__overlay');
-    this.closeBtn = initCloseBtn(this);
-    this.submitBtn = initSubmitBtn(this);
-    this.form = initForm(this);
+    this.cancelBtn = this.el.querySelector('.cancel');
+    this.submitBtn = this.el.querySelector('#upload-submit');
+    this.form = this.el.querySelector('form');
     this.effectLevel = effectLevel;
     this.effectsRadio = effectsRadio;
     this.scale = scale;
@@ -127,19 +89,63 @@
 
   };
 
+  UploadDialog.prototype._addEventListeners = function () {
+    var dialog = this;
+
+    this.eventDispatcher.addClickEventListener(
+        this.cancelBtn, function (evt) {
+          evt.preventDefault();
+          dialog.close();
+        });
+    this.eventDispatcher.addEnterKeyDownEventListener(
+        this.cancelBtn, dialog.close.bind(dialog)
+    );
+
+    this.eventDispatcher.addClickEventListener(
+        this.submitBtn, this.submit.bind(this)
+    );
+    this.eventDispatcher.addEnterKeyDownEventListener(
+        this.submitBtn, this.submit.bind(dialog)
+    );
+
+    this.eventDispatcher.addEnterKeyDownEventListener(
+        this.form, function (evt) {
+          evt.preventDefault();
+        });
+
+    this.eventDispatcher.addEscKeyDownEventListener(
+        this.form.description, function (evt) {
+          evt.stopPropagation();
+        });
+
+    this.eventDispatcher.addEscKeyDownEventListener(
+        this.form.hashtags, function (evt) {
+          evt.stopPropagation();
+        });
+
+    this.eventDispatcher.addEventListener(
+        this.form, EventType.SUBMIT, function (evt) {
+          evt.preventDefault();
+        });
+
+    this.eventDispatcher.addEscKeyDownEventListener(
+        document, this.close.bind(this)
+    );
+  };
+
   UploadDialog.prototype.open = function () {
-    var self = this;
+    var dialog = this;
+
+    this._addEventListeners();
 
     var file = document.querySelector('#upload-file').files[0];
     var fileReader = new FileReader();
     var img = this.preview.preview.querySelector('img');
     fileReader.addEventListener('load', function () {
       img.src = fileReader.result;
-      self.overlay.classList.remove('hidden');
+      dialog.overlay.classList.remove('hidden');
     });
     fileReader.readAsDataURL(file);
-
-    document.addEventListener('keydown', this.closeDialogEscKeyHandler);
 
     this.effectLevel.setValue(100);
     this.effectsRadio.setValue('none');
@@ -148,14 +154,12 @@
 
   UploadDialog.prototype.close = function () {
     this.overlay.classList.add('hidden');
-    document.removeEventListener('keydown', this.closeDialogEscKeyHandler);
-    if (this.onClose !== null) {
-      this.onClose();
-    }
+    this.eventDispatcher.removeAllEventListeners();
+    this.onClose();
   };
 
   UploadDialog.prototype.submit = function () {
-    var self = this;
+    var dialog = this;
 
     var err = validateHashTags(this.form.hashtags.value);
     this.form.hashtags.setCustomValidity(err);
@@ -165,11 +169,11 @@
     }
     window.backend.postNewPhoto(this.form,
         function () {
-          self.close();
+          dialog.close();
           window.msg.success();
         },
         function () {
-          self.close();
+          dialog.close();
           window.msg.error();
         }
     );
