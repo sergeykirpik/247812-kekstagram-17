@@ -2,9 +2,9 @@
 
 (function () {
 
-  function noop() {}
+  var noop = function () {};
 
-  function ImgFilters(imgFiltersEl) {
+  var ImgFilters = function (imgFiltersEl) {
     var thisImgFilters = this;
 
     this.el = imgFiltersEl;

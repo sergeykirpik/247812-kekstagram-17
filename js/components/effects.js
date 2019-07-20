@@ -2,14 +2,14 @@
 
 (function () {
 
-  function EffectsRadioControl(el) {
+  var EffectsRadioControl = function (el) {
     var that = this;
 
-    function changeHandler(evt) {
+    var changeHandler = function (evt) {
       if (that.onValueChanged !== null) {
         that.onValueChanged(evt.currentTarget.value);
       }
-    }
+    };
 
     this.radios = el.querySelectorAll('.effects__radio');
 
@@ -18,7 +18,7 @@
     });
 
     this.onValueChanged = null;
-  }
+  };
 
   EffectsRadioControl.prototype.setValue = function (newValue) {
     this.radios.forEach(function (r) {

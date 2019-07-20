@@ -155,6 +155,8 @@
   UploadDialog.prototype.close = function () {
     this.overlay.classList.add('hidden');
     this.eventDispatcher.removeAllEventListeners();
+    this.form.hashtags.value = '';
+    this.form.description.value = '';
     this.onClose();
   };
 

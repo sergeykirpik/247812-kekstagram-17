@@ -4,7 +4,7 @@
   var GET_LOADED_PHOTOS_URL = 'https://js.dump.academy/kekstagram/data';
   var POST_NEW_PHOTO_URL = 'https://js.dump.academy/kekstagram';
 
-  function noop() {}
+  var noop = function () {};
 
   window.backend = {
     getPhotos: function (onSuccess, onError) {

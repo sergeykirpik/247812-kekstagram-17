@@ -10,7 +10,7 @@
 
   var noop = function () {};
 
-  function ScaleControl(el) {
+  var ScaleControl = function (el) {
 
     this.eventDispatcher = new EventDispatcher();
 
@@ -24,7 +24,7 @@
     this.step = DEFAULT_STEP;
 
     this._addEventListeners();
-  }
+  };
 
   ScaleControl.prototype._addEventListeners = function () {
 

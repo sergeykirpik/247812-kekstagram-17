@@ -16,25 +16,25 @@
       return 'blur(' + Math.round(level * 0.03) + 'px';
     },
     heat: function (level) {
-      return 'brightness(' + level * 0.03 + ')';
+      return 'brightness(' + (level * 0.02 + 1.0) + ')';
     },
     none: function () {
       return '';
     },
   };
 
-  function getEffectFunction(effect) {
+  var getEffectFunction = function (effect) {
     var func = effectFunctions[effect];
     if (!func) {
       throw new Error('Invalid effect function: ' + effect);
     }
     return func;
-  }
+  };
 
-  function EffectsPreview(el) {
+  var EffectsPreview = function (el) {
     this.preview = el;
     this.currentEffect = getEffectFunction('none');
-  }
+  };
 
   EffectsPreview.prototype.setEffectLevel = function (lvl) {
     this.preview.style.filter = this.currentEffect(lvl);

@@ -749,6 +749,11 @@ main {
   color: #000000;
 
   border-radius: 5px;
+
+}
+
+.text__hashtags:invalid {
+  border: 2px dashed red;
 }
 
 .text__description {

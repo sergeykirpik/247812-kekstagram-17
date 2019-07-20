@@ -3,9 +3,9 @@
 (function () {
   var DEFAULT_XHR_TIMEOUT = 5000;
 
-  function noop() {}
+  var noop = function () {};
 
-  function Loader(method, url) {
+  var Loader = function (method, url) {
     var loader = this;
     var xhr = new XMLHttpRequest();
     xhr.timeout = DEFAULT_XHR_TIMEOUT;
@@ -45,7 +45,8 @@
       }
     });
     this.xhr = xhr;
-  }
+  };
+
   Loader.prototype.send = function (body) {
     this.xhr.send(body);
   };

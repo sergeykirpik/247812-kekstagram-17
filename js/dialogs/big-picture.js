@@ -6,15 +6,16 @@
 
   var COMMENTS_LIMIT = 5;
 
-  var randomInt = function (min, max) {
+  var getRandomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
   };
 
   var renderComment = function (comment, commentTemplate) {
     var el = commentTemplate.cloneNode(true);
 
-    var n = randomInt(1, 6);
+    var n = getRandomInt(1, 6);
     el.querySelector('.social__picture').src = 'img/avatar-{{n}}.svg'.replace('{{n}}', n);
+    el.querySelector('.social__picture').alt = comment.name;
     el.querySelector('.social__text').textContent = comment.message;
 
     return el;
@@ -28,6 +29,7 @@
     this.img = this.el.querySelector('.big-picture__img img');
     this.likesCount = this.el.querySelector('.likes-count');
     this.commentsCount = this.el.querySelector('.comments-count');
+    this.commentsLoaded = this.el.querySelector('.comments-loaded');
     this.socialCommentsBlock = this.el.querySelector('.social__comments');
     this.commentTemplate = document.querySelector('#comment')
       .content
@@ -53,11 +55,13 @@
     }
 
     this.el.classList.remove('hidden');
+    document.body.classList.add('modal-open');
     this._addEventListeners();
   };
 
   BigPictureDialog.prototype.hide = function () {
     this.el.classList.add('hidden');
+    document.body.classList.remove('modal-open');
     this.eventDispatcher.removeAllEventListeners();
   };
 
@@ -72,21 +76,22 @@
       it.remove();
     });
 
-    this.commentsLoaded = 0;
+    this.commentsLoadedCounter = 0;
     this._loadMoreComments();
 
   };
 
   BigPictureDialog.prototype._renderComments = function () {
     var fragment = document.createDocumentFragment();
-    var start = this.commentsLoaded;
-    var end = this.commentsLoaded + COMMENTS_LIMIT;
+    var start = this.commentsLoadedCounter;
+    var end = this.commentsLoadedCounter + COMMENTS_LIMIT;
     var comments = this.picture.comments;
     for (var i = start; i < Math.min(comments.length, end); i++) {
       fragment.appendChild(renderComment(comments[i], this.commentTemplate));
     }
 
     this.socialCommentsBlock.appendChild(fragment);
+    this.commentsLoaded.textContent = Math.min(comments.length, end);
   };
 
   BigPictureDialog.prototype._addEventListeners = function () {
@@ -103,9 +108,9 @@
 
   BigPictureDialog.prototype._loadMoreComments = function () {
     this._renderComments();
-    this.commentsLoaded += COMMENTS_LIMIT;
+    this.commentsLoadedCounter += COMMENTS_LIMIT;
     this._setCommentsLoaderVisibility(
-        this.commentsLoaded < this.picture.comments.length
+        this.commentsLoadedCounter < this.picture.comments.length
     );
   };
 
