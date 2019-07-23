@@ -17,7 +17,7 @@
         thisImgFilters.setActive(b.id);
       });
     });
-  }
+  };
 
   ImgFilters.prototype = {
     setActive: function (id) {
