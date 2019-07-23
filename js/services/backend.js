@@ -11,12 +11,6 @@
       var loader = new window.xhr.Loader('GET', GET_LOADED_PHOTOS_URL);
       loader.onSuccess = onSuccess || noop;
       loader.onError = onError || noop;
-      loader.onTimeout = function () {
-        onSuccess(window.mockdata);
-      };
-      loader.onConnectionError = function () {
-        onSuccess(window.mockdata);
-      };
       loader.send();
     },
     postNewPhoto: function (form, onSuccess, onError) {
