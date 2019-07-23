@@ -19,4 +19,9 @@
     SUBMIT: 'submit',
   };
 
+  window.constants.HashTagsConstraint = {
+    MAX_LENGTH: 20,
+    MAX_COUNT: 5
+  };
+
 })();

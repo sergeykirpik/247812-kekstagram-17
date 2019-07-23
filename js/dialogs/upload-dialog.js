@@ -3,6 +3,7 @@
 (function () {
 
   var EventType = window.constants.EventType;
+  var HashTagsConstraint = window.constants.HashTagsConstraint;
 
   var EventDispatcher = window.utils.EventDispatcher;
 
@@ -37,13 +38,15 @@
       if (it === hashtags[i + 1]) {
         return 'Один и тот же хэш-тег не может быть использован дважды';
       }
-      if (it.length > 20) {
-        return 'Максимальная длина одного хэш-тега 20 символов, включая решётку';
+      if (it.length > HashTagsConstraint.MAX_LENGTH) {
+        return 'Максимальная длина одного хэш-тега {{MAX_LENGTH}} символов, включая решётку'
+               .replace('{{MAX_LENGTH}}', HashTagsConstraint.MAX_LENGTH);
       }
     }
 
-    if (hashtags.length > 5) {
-      return 'Нельзя указать больше пяти хэш-тегов';
+    if (hashtags.length > HashTagsConstraint.MAX_COUNT) {
+      return 'Нельзя указать больше {{MAX_COUNT}} хэш-тегов'
+              .replace('{{MAX_COUNT}}', HashTagsConstraint.MAX_COUNT);
     }
 
     return '';
